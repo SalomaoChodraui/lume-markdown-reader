@@ -1,0 +1,75 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "Lume",
+  "version": "1.2.1",
+  "identifier": "com.lume.markdown-reader",
+  "build": {
+    "frontendDist": "../dist-desktop",
+    "devUrl": "http://localhost:1420",
+    "beforeDevCommand": "npm run dev:desktop",
+    "beforeBuildCommand": "npm run build:desktop"
+  },
+  "app": {
+    "windows": [
+      {
+        "center": true,
+        "fullscreen": false,
+        "height": 800,
+        "hiddenTitle": true,
+        "minHeight": 600,
+        "minWidth": 900,
+        "resizable": true,
+        "title": "Lume",
+        "titleBarStyle": "Overlay",
+        "width": 1280
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "category": "Productivity",
+    "copyright": "Copyright © 2026 Salomão Faroj Chodraui Filho",
+    "fileAssociations": [
+      {
+        "contentTypes": [
+          "net.daringfireball.markdown",
+          "public.plain-text"
+        ],
+        "description": "Documento Markdown",
+        "ext": [
+          "md",
+          "markdown",
+          "mdown"
+        ],
+        "mimeType": "text/markdown",
+        "name": "Documento Markdown",
+        "rank": "Default",
+        "role": "Viewer"
+      }
+    ],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "longDescription": "Um leitor Markdown local, leve e focado em leitura, com links wiki e navegação por pastas.",
+    "macOS": {
+      "hardenedRuntime": true,
+      "minimumSystemVersion": "12.0"
+    },
+    "resources": [
+      "../LICENSE",
+      "../THIRD_PARTY_NOTICES.md"
+    ],
+    "shortDescription": "Leitor Markdown local.",
+    "targets": [
+      "app",
+      "dmg"
+    ]
+  }
+}

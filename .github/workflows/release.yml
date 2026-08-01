@@ -1,0 +1,65 @@
+name: Release macOS
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Universal, signed and notarized
+    runs-on: macos-latest
+    env:
+      APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+      APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+      APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+      APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          cache: npm
+          node-version: 22
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+
+      - name: Cache Rust
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: ./src-tauri -> target
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify source
+        run: |
+          npm test
+          npm run typecheck:desktop
+          npm run lint
+          cargo test --manifest-path src-tauri/Cargo.toml --locked
+
+      - name: Build, notarize and publish
+        uses: tauri-apps/tauri-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: --target universal-apple-darwin
+          prerelease: false
+          releaseBody: |
+            Primeira versão pública do Lume.
+
+            Binário universal para Intel e Apple Silicon, assinado com
+            Developer ID e notarizado pela Apple. Requer macOS 12 ou superior.
+          releaseDraft: false
+          releaseName: Lume v__VERSION__
+          tagName: v__VERSION__

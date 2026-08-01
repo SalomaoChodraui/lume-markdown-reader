@@ -1,0 +1,68 @@
+{
+  "name": "lume-markdown-reader",
+  "version": "1.2.1",
+  "description": "Leitor Markdown local, leve e focado em leitura.",
+  "author": "Salomão Faroj Chodraui Filho",
+  "license": "MIT",
+  "homepage": "https://github.com/salo-adm-camelie/lume-markdown-reader#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/salo-adm-camelie/lume-markdown-reader.git"
+  },
+  "private": true,
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "overrides": {
+    "@esbuild-kit/core-utils": {
+      "esbuild": "0.25.12"
+    },
+    "postcss": "8.5.25",
+    "sharp": "0.35.3"
+  },
+  "scripts": {
+    "dev": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext dev",
+    "dev:desktop": "vite --config vite.desktop.config.ts",
+    "build": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build",
+    "build:desktop": "vite build --config vite.desktop.config.ts",
+    "desktop": "tauri dev",
+    "desktop:build": "tauri build",
+    "typecheck:desktop": "tsc -p tsconfig.desktop.json",
+    "start": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext start",
+    "test": "npm run build && node --test tests/rendered-html.test.mjs",
+    "lint": "eslint . --ignore-pattern dist --ignore-pattern dist-desktop --ignore-pattern .next",
+    "db:generate": "drizzle-kit generate"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.11.1",
+    "@tauri-apps/plugin-dialog": "^2.7.2",
+    "@tauri-apps/plugin-opener": "^2.5.4",
+    "dompurify": "^3.4.12",
+    "drizzle-orm": "0.45.2",
+    "lucide-react": "^1.27.0",
+    "marked": "^18.0.7",
+    "next": "^16.2.12",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.50.0",
+    "@tailwindcss/postcss": "4.2.1",
+    "@tauri-apps/cli": "^2.11.4",
+    "@types/node": "22.19.19",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.0.5",
+    "@vitejs/plugin-rsc": "^0.5.32",
+    "drizzle-kit": "0.31.10",
+    "eslint": "9.39.4",
+    "eslint-config-next": "^16.2.12",
+    "react-server-dom-webpack": "^19.2.8",
+    "tailwindcss": "4.2.1",
+    "typescript": "5.9.3",
+    "vinext": "0.0.50",
+    "vite": "^8.2.0",
+    "wrangler": "^4.118.0"
+  },
+  "type": "module"
+}
