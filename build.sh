@@ -46,6 +46,10 @@ if [[ -d "$here/Icon/AppIcon.icon" ]]; then
   fi
   cp -X "$car" "$here/Resources/AppIcon.icns" "$app/Contents/Resources/"
 fi
+# The reader page, the guide, and the Portuguese menus (system items follow pt-BR.lproj).
+cp -R "$here/Resources/Web" "$here/Resources/Guide" "$app/Contents/Resources/"
+cp "$here/THIRD_PARTY_NOTICES.md" "$app/Contents/Resources/" 2>/dev/null || true
+mkdir -p "$app/Contents/Resources/pt-BR.lproj"
 xattr -cr "$app"
 codesign --force --sign "$identity" "$app" 2>&1 | grep -v "replacing existing signature" || true
 echo "installed $app (signed: ${identity})"

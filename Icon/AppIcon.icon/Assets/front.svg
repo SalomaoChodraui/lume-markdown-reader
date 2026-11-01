@@ -1,3 +1,4 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
-  <rect x="262" y="372" width="500" height="380" rx="72" fill="#FFFFFF"/>
+  <path d="M496 332 Q 400 290 290 294 Q 266 295 266 318 L 266 668 Q 266 692 290 692 Q 400 690 496 734 Z" fill="#FFFFFF"/>
+  <path d="M528 332 Q 624 290 734 294 Q 758 295 758 318 L 758 668 Q 758 692 734 692 Q 624 690 528 734 Z" fill="#FFFFFF"/>
 </svg>

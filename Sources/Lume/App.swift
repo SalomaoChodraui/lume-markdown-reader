@@ -1,20 +1,17 @@
 import AppKit
-import SwiftData
 import SwiftUI
 
-// Lume
-//   Lume                      the app
-//   APP_STORE=<file> Lume     use another database (tests, experiments)
-//   APP_SNAPSHOT=<dir> Lume   save a PNG of every sidebar page and Settings tab in light and dark mode, then quit
-//   APP_SEED=1 Lume           fill an empty /tmp store with sample items (tools/snap.sh)
-//   Lume --selftest           run the self-test on a /tmp store and quit with 0 or 1 (tools/selftest.sh)
-//   APP_ACCENT=<id> Lume      run with another accent from Theme.all (UI/Theme.swift)
-//   APP_GRID=1 Lume           draw the 8 pt grid and the layout probes over the window
+// Lume, a calm Markdown reader.
+//   Lume                       the app
+//   APP_STORE=<file> Lume      keep settings in a separate test suite (snapshots, self-test)
+//   APP_SNAPSHOT=<dir> Lume    save a PNG of every surface in light and dark mode, then quit
+//   Lume --selftest            run the self-test and quit with 0 or 1 (tools/selftest.sh)
+//   APP_GRID=1 Lume            draw the 8 pt grid and the layout probes over the window
 
 @main
 struct LumeApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
-    @State private var model = AppModel(container: Store.makeContainer())
+    @State private var model = AppModel.shared
 
     var body: some Scene {
         Window("Lume", id: "main") {
@@ -22,19 +19,11 @@ struct LumeApp: App {
                 .environment(model)
                 .themed()
                 .overlay { if GridOverlay.enabled { GridOverlay() } }
-                .frame(minWidth: 760, minHeight: 480)
+                .frame(minWidth: 900, minHeight: 460)
         }
-        .modelContainer(model.container)
-        .defaultSize(width: 1100, height: 720)
+        .defaultSize(width: 1240, height: 800)
         .windowToolbarStyle(.unified)
-        .commands {
-            SidebarCommands()
-            ToolbarCommands()
-            CommandGroup(replacing: .newItem) {
-                Button("New Item") { model.addItem() }
-                    .keyboardShortcut("n")
-            }
-        }
+        .commands { LumeCommands(model: model) }
 
         Settings {
             SettingsView()
@@ -52,35 +41,39 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.activate()
     }
 
+    /// Files and folders from Finder, the Dock icon, or "Open With".
+    func application(_ application: NSApplication, open urls: [URL]) {
+        AppModel.shared.openFromSystem(urls)
+    }
+
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
+
+    /// Quit asks only when typed work would be lost.
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        let model = AppModel.shared
+        guard model.hasUnsaved, !SelfTest.requested, !Snapshot.requested else { return .terminateNow }
+        Task {
+            let proceed = await model.resolveUnsaved(action: "sair")
+            sender.reply(toApplicationShouldTerminate: proceed)
+        }
+        return .terminateLater
+    }
+
+    func applicationDockMenu(_ sender: NSApplication) -> NSMenu? {
+        let menu = NSMenu()
+        let open = NSMenuItem(title: "Abrir…", action: #selector(openFromDock), keyEquivalent: "")
+        open.target = self
+        menu.addItem(open)
+        return menu
+    }
+
+    @objc private func openFromDock() {
+        NSApp.activate()
+        AppModel.shared.showOpenPanel()
+    }
 
     /// The self-test's result becomes the exit code, after a normal quit.
     func applicationWillTerminate(_ notification: Notification) {
         if SelfTest.requested { exit(SelfTest.exitCode) }
-    }
-}
-
-/// Where the data lives: ~/Library/Application Support/Lume/Lume.store
-enum Store {
-    /// True when APP_STORE points somewhere else (tests, snapshots, seed data).
-    static var isOverridden: Bool {
-        !(ProcessInfo.processInfo.environment["APP_STORE"] ?? "").isEmpty
-    }
-
-    static var url: URL {
-        if let path = ProcessInfo.processInfo.environment["APP_STORE"], !path.isEmpty {
-            return URL(fileURLWithPath: path)
-        }
-        let dir = URL.applicationSupportDirectory.appending(path: "Lume", directoryHint: .isDirectory)
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        return dir.appending(path: "Lume.store")
-    }
-
-    static func makeContainer() -> ModelContainer {
-        do {
-            return try ModelContainer(for: Item.self, configurations: ModelConfiguration(url: url))
-        } catch {
-            fatalError("Could not open the database at \(url.path): \(error)")
-        }
     }
 }

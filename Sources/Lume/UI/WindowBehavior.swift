@@ -75,3 +75,69 @@ private struct WindowHook: NSViewRepresentable {
         }
     }
 }
+
+/// Hands the hosting NSWindow to SwiftUI code, and guards its close button:
+/// a window with unsaved edits asks first (Save, Don't Save, Cancel).
+struct WindowAccessor: NSViewRepresentable {
+    let onWindow: (NSWindow) -> Void
+
+    func makeNSView(context: Context) -> Probe {
+        let probe = Probe()
+        probe.onWindow = onWindow
+        return probe
+    }
+
+    func updateNSView(_ probe: Probe, context: Context) {}
+
+    final class Probe: NSView {
+        var onWindow: ((NSWindow) -> Void)?
+        private var guardian: CloseGuard?
+
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            guard let window else { return }
+            onWindow?(window)
+            if guardian == nil || window.delegate !== guardian {
+                let guardian = CloseGuard(window: window)
+                self.guardian = guardian
+            }
+        }
+    }
+}
+
+/// Sits in front of SwiftUI's window delegate and forwards everything,
+/// except that it asks about unsaved changes before the window closes.
+final class CloseGuard: NSObject, NSWindowDelegate {
+    // Strong: the window holds its delegate weakly, and SwiftUI's must stay alive.
+    // Read from responds(to:) and forwardingTarget(for:), which AppKit calls on the main thread.
+    nonisolated(unsafe) private var original: NSWindowDelegate?
+    private var closing = false
+
+    init(window: NSWindow) {
+        original = window.delegate
+        super.init()
+        window.delegate = self
+    }
+
+    func windowShouldClose(_ sender: NSWindow) -> Bool {
+        if closing { return original?.windowShouldClose?(sender) ?? true }
+        let model = AppModel.shared
+        guard model.hasUnsaved else { return original?.windowShouldClose?(sender) ?? true }
+        Task {
+            if await model.resolveUnsaved(action: "fechar a janela") {
+                closing = true
+                sender.performClose(nil)
+                closing = false
+            }
+        }
+        return false
+    }
+
+    nonisolated override func responds(to selector: Selector!) -> Bool {
+        super.responds(to: selector) || (original?.responds(to: selector) ?? false)
+    }
+
+    nonisolated override func forwardingTarget(for selector: Selector!) -> Any? {
+        original?.responds(to: selector) == true ? original : super.forwardingTarget(for: selector)
+    }
+}

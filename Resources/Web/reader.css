@@ -1,0 +1,424 @@
+/* The reading page. Six palettes; the app picks one, and "Automático"
+   follows the Mac's light or dark mode. Fonts are the system's own:
+   New York for reading, SF Pro for headings, SF Mono for code. */
+
+:root {
+  --reader-scale: 1;
+  --font-reading: ui-serif, "New York", Georgia, serif;
+  --font-ui: -apple-system, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+  --note: #2f6fdb;
+  --tip: #1f8a4c;
+  --important: #7b4fd6;
+  --warning: #b86b00;
+  --caution: #c8322f;
+  color-scheme: light;
+}
+
+.theme-paper {
+  --accent: #b84b2c;
+  --accent-soft: #f4e1d9;
+  --accent-ink: #83341f;
+  --paper: #fbfaf6;
+  --text: #252521;
+  --muted: #6b685f;
+  --line: #dcd7cd;
+  --code: #f0ece4;
+  --selection: #eed7c8;
+}
+
+.theme-sepia {
+  --accent: #9a6037;
+  --accent-soft: #ead9c2;
+  --accent-ink: #704326;
+  --paper: #f3ead9;
+  --text: #3f3328;
+  --muted: #6d5b48;
+  --line: #d4c3aa;
+  --code: #e8dcc9;
+  --selection: #dfc29f;
+}
+
+.theme-eink {
+  --accent: #476457;
+  --accent-soft: #d4ddd7;
+  --accent-ink: #30493e;
+  --paper: #eeeeea;
+  --text: #20211f;
+  --muted: #565953;
+  --line: #c1c3bd;
+  --code: #dfe0db;
+  --selection: #c8d4cd;
+}
+
+.theme-night {
+  color-scheme: dark;
+  --accent: #8ea5ff;
+  --accent-soft: #252d50;
+  --accent-ink: #bdc9ff;
+  --paper: #121620;
+  --text: #e8eaf2;
+  --muted: #a3abbf;
+  --line: #2a3140;
+  --code: #1a2030;
+  --selection: #303d6c;
+  --note: #7aa7ff;
+  --tip: #5fd08f;
+  --important: #b79bff;
+  --warning: #f0b45a;
+  --caution: #ff7d73;
+}
+
+.theme-midnight {
+  color-scheme: dark;
+  --accent: #d5a35e;
+  --accent-soft: #392d20;
+  --accent-ink: #edc887;
+  --paper: #101217;
+  --text: #e6e1d8;
+  --muted: #a39d93;
+  --line: #2b2c30;
+  --code: #1b1d22;
+  --selection: #4a3924;
+  --note: #7aa7ff;
+  --tip: #5fd08f;
+  --important: #b79bff;
+  --warning: #f0b45a;
+  --caution: #ff7d73;
+}
+
+.theme-terminal {
+  color-scheme: dark;
+  --accent: var(--terminal-accent, #63d483);
+  --paper: var(--terminal-background, #0b0f0c);
+  --text: var(--terminal-text, #d9f2de);
+  --muted: var(--terminal-muted, #7f9f87);
+  --accent-soft: color-mix(in srgb, var(--accent) 16%, var(--paper));
+  --accent-ink: color-mix(in srgb, var(--accent) 84%, white);
+  --line: color-mix(in srgb, var(--muted) 30%, var(--paper));
+  --code: var(--terminal-surface, #111812);
+  --selection: color-mix(in srgb, var(--accent) 28%, var(--paper));
+  --font-reading: var(--font-mono);
+  --note: #79c0ff;
+  --tip: #7ee787;
+  --important: #d2a8ff;
+  --warning: #e3b341;
+  --caution: #ff7b72;
+}
+
+html {
+  background: var(--paper);
+  color: var(--text);
+  -webkit-text-size-adjust: none;
+}
+
+body {
+  margin: 0;
+}
+
+::selection {
+  background: var(--selection);
+}
+
+.markdown-body {
+  box-sizing: border-box;
+  font-family: var(--font-reading);
+  font-size: calc(17px * var(--reader-scale));
+  line-height: 1.7;
+  margin: 0 auto;
+  max-width: min(100%, calc(1080px * var(--reader-scale)));
+  overflow-wrap: break-word;
+  padding: 48px 56px 96px;
+  width: 100%;
+}
+
+@media (max-width: 560px) {
+  .markdown-body {
+    padding: 32px 24px 72px;
+  }
+
+  .markdown-body h1 {
+    font-size: 1.8em;
+  }
+}
+
+.width-compact .markdown-body { max-width: min(100%, 860px); }
+.width-comfortable .markdown-body { max-width: min(100%, 1080px); }
+.width-wide .markdown-body { max-width: min(100%, 1320px); }
+.width-full .markdown-body { max-width: none; }
+
+.theme-terminal .markdown-body {
+  font-size: calc(14px * var(--reader-scale));
+  line-height: 1.7;
+}
+
+.theme-terminal.width-auto .markdown-body {
+  max-width: min(100%, calc(1200px * var(--reader-scale)));
+}
+
+.markdown-body > :first-child {
+  margin-top: 0;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4 {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.22;
+  scroll-margin-top: 24px;
+}
+
+.theme-terminal .markdown-body h1,
+.theme-terminal .markdown-body h2,
+.theme-terminal .markdown-body h3,
+.theme-terminal .markdown-body h4 {
+  font-family: var(--font-mono);
+  letter-spacing: 0;
+}
+
+.markdown-body h1 {
+  font-size: 2.2em;
+  margin: 0 0 0.7em;
+  max-width: 20ch;
+}
+
+.markdown-body h1::after {
+  background: var(--accent);
+  border-radius: 2px;
+  content: "";
+  display: block;
+  height: 3px;
+  margin-top: 0.5em;
+  width: 32px;
+}
+
+.markdown-body h2 {
+  border-top: 1px solid var(--line);
+  font-size: 1.4em;
+  margin: 2.4em 0 0.8em;
+  padding-top: 1.4em;
+}
+
+.markdown-body h3 {
+  font-size: 1.12em;
+  margin: 2em 0 0.5em;
+}
+
+.theme-terminal .markdown-body h1 { color: var(--terminal-heading1, var(--text)); }
+.theme-terminal .markdown-body h2 { color: var(--terminal-heading2, var(--text)); }
+.theme-terminal .markdown-body h3 { color: var(--terminal-heading3, var(--text)); }
+.theme-terminal .markdown-body h1::before { content: "# "; }
+.theme-terminal .markdown-body h2::before { content: "## "; }
+.theme-terminal .markdown-body h3::before { content: "### "; }
+.theme-terminal .markdown-body h1::after { display: none; }
+
+.markdown-body p,
+.markdown-body ul,
+.markdown-body ol,
+.markdown-body table,
+.markdown-body blockquote {
+  margin: 1em 0;
+}
+
+.markdown-body a {
+  color: var(--accent-ink);
+  text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.markdown-body a.wikilink {
+  background: var(--accent-soft);
+  border-radius: 4px;
+  font-family: var(--font-ui);
+  font-size: 0.92em;
+  padding: 1px 5px;
+  text-decoration: none;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 1.4em;
+}
+
+.markdown-body li {
+  margin: 0.3em 0;
+  padding-left: 0.2em;
+}
+
+.markdown-body li::marker {
+  color: var(--accent);
+}
+
+.markdown-body li:has(> input[type="checkbox"]) {
+  list-style: none;
+  margin-left: -1.4em;
+}
+
+.markdown-body input[type="checkbox"] {
+  accent-color: var(--accent);
+  margin: 0 0.5em 0 0;
+}
+
+.markdown-body blockquote {
+  background: color-mix(in srgb, var(--accent-soft) 55%, transparent);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  color: color-mix(in srgb, var(--text) 85%, var(--muted));
+  padding: 0.75em 1.1em;
+}
+
+.markdown-body blockquote > :first-child { margin-top: 0; }
+.markdown-body blockquote > :last-child { margin-bottom: 0; }
+
+.markdown-body blockquote.callout {
+  --callout: var(--note);
+  background: color-mix(in srgb, var(--callout) 9%, transparent);
+  border-left-color: var(--callout);
+}
+
+.markdown-body .callout-tip { --callout: var(--tip); }
+.markdown-body .callout-important { --callout: var(--important); }
+.markdown-body .callout-warning { --callout: var(--warning); }
+.markdown-body .callout-caution { --callout: var(--caution); }
+
+.markdown-body .callout-title {
+  color: var(--callout);
+  font-family: var(--font-ui);
+  font-size: 0.82em;
+  font-weight: 700;
+  margin-bottom: 0.35em;
+}
+
+.markdown-body code {
+  background: var(--code);
+  border: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.84em;
+  padding: 0.1em 0.32em;
+}
+
+.markdown-body pre {
+  background: var(--code);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  line-height: 1.55;
+  margin: 1.5em 0;
+  overflow: auto;
+  padding: 1.1em 1.25em;
+  position: relative;
+}
+
+.theme-terminal .markdown-body pre {
+  border-left: 3px solid var(--accent);
+}
+
+.markdown-body pre code {
+  background: transparent;
+  border: 0;
+  font-size: 0.8em;
+  padding: 0;
+}
+
+.copy-code {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--muted);
+  cursor: default;
+  font: 500 11px/1 var(--font-ui);
+  opacity: 0;
+  padding: 5px 8px;
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  transition: opacity 120ms ease;
+}
+
+pre:hover .copy-code,
+.copy-code:focus-visible {
+  opacity: 1;
+}
+
+.copy-code:hover {
+  color: var(--text);
+}
+
+.markdown-body table {
+  border-collapse: collapse;
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.82em;
+  overflow-x: auto;
+  width: 100%;
+}
+
+.markdown-body th {
+  color: var(--muted);
+  font-weight: 600;
+  text-align: left;
+}
+
+.markdown-body th,
+.markdown-body td {
+  border-bottom: 1px solid var(--line);
+  padding: 0.7em 1.2em 0.7em 0;
+  vertical-align: top;
+}
+
+.markdown-body img {
+  border-radius: 8px;
+  display: block;
+  height: auto;
+  margin: 1.8em auto;
+  max-width: 100%;
+}
+
+.markdown-body hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 3em 0;
+}
+
+mark.lume-match {
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+  border-radius: 2px;
+  color: inherit;
+  padding: 0 1px;
+}
+
+mark.lume-match.active {
+  background: #ffd84d;
+  color: #1d1d1f;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}
+
+@media print {
+  html {
+    background: white;
+    color: black;
+  }
+
+  .markdown-body {
+    max-width: none;
+    padding: 0;
+  }
+
+  .copy-code {
+    display: none;
+  }
+
+  .markdown-body pre {
+    white-space: pre-wrap;
+  }
+}
