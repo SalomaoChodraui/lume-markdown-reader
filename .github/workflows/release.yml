@@ -37,6 +37,21 @@ jobs:
           swift test --scratch-path "$RUNNER_TEMP/test-build"
           node tools/test-markdown.cjs
 
+      - name: Check the signing secrets
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+        run: |
+          missing=()
+          [[ -n "$APPLE_CERTIFICATE" ]] || missing+=(APPLE_CERTIFICATE)
+          [[ -n "$SIGN_IDENTITY" ]] || missing+=(APPLE_SIGNING_IDENTITY)
+          [[ -n "$APPLE_ID" ]] || missing+=(APPLE_ID)
+          [[ -n "$APPLE_PASSWORD" ]] || missing+=(APPLE_PASSWORD)
+          [[ -n "$APPLE_TEAM_ID" ]] || missing+=(APPLE_TEAM_ID)
+          if (( ${#missing[@]} )); then
+            echo "::error::Faltam os segredos ${missing[*]}. Veja docs/RELEASING.md."
+            exit 1
+          fi
+
       - name: Import the Developer ID certificate
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
