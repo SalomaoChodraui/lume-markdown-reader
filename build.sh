@@ -34,23 +34,7 @@ fi
 
 app="$HOME/Applications/$name.app"
 mkdir -p "$HOME/Applications"
-rm -rf "$app"
-mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
-cp "$bin" "$app/Contents/MacOS/$name"
-sed -e "s/__BUILD__/$(date +%Y%m%d%H%M)/" "$here/Info.plist.in" > "$app/Contents/Info.plist"
-# The icon: Icon/AppIcon.icon -> Resources/Assets.car + AppIcon.icns, rebuilt when it changed.
-if [[ -d "$here/Icon/AppIcon.icon" ]]; then
-  car="$here/Resources/Assets.car"
-  if [[ ! -f "$car" || -n "$(find "$here/Icon/AppIcon.icon" -newer "$car" | head -1)" ]]; then
-    "$here/tools/make_icon.sh"
-  fi
-  cp -X "$car" "$here/Resources/AppIcon.icns" "$app/Contents/Resources/"
-fi
-# The reader page, the guide, and the Portuguese menus (system items follow pt-BR.lproj).
-cp -R "$here/Resources/Web" "$here/Resources/Guide" "$app/Contents/Resources/"
-cp "$here/THIRD_PARTY_NOTICES.md" "$app/Contents/Resources/" 2>/dev/null || true
-mkdir -p "$app/Contents/Resources/pt-BR.lproj"
-xattr -cr "$app"
+"$here/tools/bundle.sh" "$bin" "$app" "$(date +%Y%m%d%H%M)"
 codesign --force --sign "$identity" "$app" 2>&1 | grep -v "replacing existing signature" || true
 echo "installed $app (signed: ${identity})"
 

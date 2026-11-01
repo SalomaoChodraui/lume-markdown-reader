@@ -375,6 +375,17 @@ final class AppModel {
         fileSearchFocusRequest += 1
     }
 
+    /// macOS 14: focuses the sidebar's search field by walking the window's views.
+    func focusSearchFieldInWindow() {
+        func field(in view: NSView) -> NSSearchField? {
+            if let search = view as? NSSearchField { return search }
+            for child in view.subviews { if let found = field(in: child) { return found } }
+            return nil
+        }
+        guard let window, let root = window.contentView?.superview, let search = field(in: root) else { return }
+        window.makeFirstResponder(search)
+    }
+
     private func editorFind(_ action: NSTextFinder.Action) {
         guard let editorView else { return }
         let item = NSMenuItem()

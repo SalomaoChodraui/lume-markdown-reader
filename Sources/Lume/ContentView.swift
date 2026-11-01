@@ -18,7 +18,7 @@ struct ContentView: View {
             OutlineInspector()
                 .inspectorColumnWidth(min: 180, ideal: 248, max: 340)
                 .toolbar {
-                    ToolbarSpacer(.flexible)
+                    if #available(macOS 26, *) { ToolbarSpacer(.flexible) }
                     ToolbarItem {
                         Button("Sumário", systemImage: "sidebar.trailing") { model.showInspector.toggle() }
                             .help("Mostrar ou ocultar o sumário (⌃⌘I)")
@@ -172,7 +172,7 @@ struct DocumentToolbar: ToolbarContent {
                 .disabled(!model.canGoForward)
                 .help("Avançar ao próximo documento (⌘])")
         }
-        ToolbarSpacer(.flexible)
+        if #available(macOS 26, *) { ToolbarSpacer(.flexible) }
         ToolbarItemGroup {
             if model.editing, model.current != nil {
                 Button("Ler", systemImage: "book") { model.toggleEditing() }
@@ -191,7 +191,7 @@ struct DocumentToolbar: ToolbarContent {
                 .help("Buscar neste documento (⌘F)")
             }
         }
-        ToolbarSpacer(.fixed)
+        if #available(macOS 26, *) { ToolbarSpacer(.fixed) }
         ToolbarItem {
             Button("Leitura", systemImage: "textformat.size") { model.readingPopoverShown.toggle() }
                 .help("Ajustar o tamanho do texto, a largura e o tema")

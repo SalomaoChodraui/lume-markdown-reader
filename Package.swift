@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "Lume",
-    platforms: [.macOS(.v26)],
+    platforms: [.macOS(.v14)],
     targets: [
         // Rules and data logic with no SwiftUI, so tests run without the app.
         .target(name: "LumeKit"),

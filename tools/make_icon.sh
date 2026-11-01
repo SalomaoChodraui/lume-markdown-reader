@@ -15,7 +15,7 @@ mkdir -p "$repo/Resources"
 # The .icon must be named AppIcon.icon to match --app-icon, or actool
 # writes nothing and still exits 0. Check the output to catch that.
 xcrun actool "$icon" --compile "$work" --platform macosx \
-  --minimum-deployment-target 26.0 --app-icon AppIcon \
+  --minimum-deployment-target 14.0 --app-icon AppIcon \
   --output-partial-info-plist "$work/partial.plist" \
   --output-format human-readable-text --errors --warnings >"$work/log" 2>&1 || { cat "$work/log"; exit 1; }
 [[ -f "$work/Assets.car" && -f "$work/AppIcon.icns" ]] || { cat "$work/log"; echo "actool wrote no icon"; exit 1; }

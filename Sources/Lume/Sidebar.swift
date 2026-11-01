@@ -25,8 +25,14 @@ struct FileSidebar: View {
             }
         }
         .searchable(text: $model.fileQuery, placement: .sidebar, prompt: "Buscar nos arquivos")
-        .searchFocused($searchFocused)
-        .onChange(of: model.fileSearchFocusRequest) { searchFocused = true }
+        .modifier(SearchFocus(focused: $searchFocused))
+        .onChange(of: model.fileSearchFocusRequest) {
+            if #available(macOS 15, *) {
+                searchFocused = true
+            } else {
+                model.focusSearchFieldInWindow()
+            }
+        }
         .overlay {
             if model.kind != nil, !model.fileQuery.isEmpty, model.searchResults.isEmpty {
                 ContentUnavailableView.search(text: model.fileQuery)
@@ -154,6 +160,19 @@ struct FileContextMenu: View {
         if let url = model.url(for: path), model.kind != .guide {
             Button("Mostrar no Finder") { model.revealInFinder(url) }
             Button("Copiar Caminho") { model.copyPath(url) }
+        }
+    }
+}
+
+/// `searchFocused` exists from macOS 15. On 14, ⌥⌘F finds the field in the window instead.
+private struct SearchFocus: ViewModifier {
+    var focused: FocusState<Bool>.Binding
+
+    func body(content: Content) -> some View {
+        if #available(macOS 15, *) {
+            content.searchFocused(focused)
+        } else {
+            content
         }
     }
 }

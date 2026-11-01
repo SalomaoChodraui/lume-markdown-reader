@@ -1,6 +1,7 @@
 # Lume: plano de design
 
-Leitor de Markdown local para macOS 26, em SwiftUI. Sucessor nativo da versão
+Leitor de Markdown local para macOS 14 ou superior, em SwiftUI. Liquid Glass
+aparece sozinho no macOS 26. Sucessor nativo da versão
 Tauri 1.2.1 (`~/Documents/05_Empresas/MD Viewer`).
 
 ## Arquétipo

@@ -1,0 +1,73 @@
+name: Release macOS
+
+on:
+  workflow_dispatch:
+    inputs:
+      draft:
+        description: Criar a release como rascunho
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Universal, assinado e notarizado
+    runs-on: macos-26
+    env:
+      APPLE_ID: ${{ secrets.APPLE_ID }}
+      APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      SIGN_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Toolchain
+        run: |
+          swift --version
+          xcodebuild -version
+
+      - name: Tests
+        run: |
+          swift test --scratch-path "$RUNNER_TEMP/test-build"
+          node tools/test-markdown.cjs
+
+      - name: Import the Developer ID certificate
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+        run: |
+          keychain="$RUNNER_TEMP/release.keychain-db"
+          password=$(uuidgen)
+          echo "$APPLE_CERTIFICATE" | base64 --decode > "$RUNNER_TEMP/certificate.p12"
+          security create-keychain -p "$password" "$keychain"
+          security set-keychain-settings -lut 21600 "$keychain"
+          security unlock-keychain -p "$password" "$keychain"
+          security import "$RUNNER_TEMP/certificate.p12" -P "$APPLE_CERTIFICATE_PASSWORD" \
+            -A -t cert -f pkcs12 -k "$keychain"
+          security set-key-partition-list -S apple-tool:,apple: -k "$password" "$keychain" >/dev/null
+          security list-keychains -d user -s "$keychain" $(security list-keychains -d user | tr -d '"')
+          rm "$RUNNER_TEMP/certificate.p12"
+
+      - name: Build, sign, notarize, and make the DMG
+        run: tools/release.sh
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(plutil -extract CFBundleShortVersionString raw Info.plist.in)
+          notes="docs/release-notes/$version.md"
+          [[ -f "$notes" ]] || notes=/dev/null
+          gh release create "v$version" "dist/Lume-$version.dmg" "dist/Lume-$version.dmg.sha256" \
+            --title "Lume $version" --notes-file "$notes" --target "$GITHUB_SHA" \
+            ${{ inputs.draft && '--draft' || '' }}
+
+      - name: Remove the keychain
+        if: always()
+        run: security delete-keychain "$RUNNER_TEMP/release.keychain-db" 2>/dev/null || true

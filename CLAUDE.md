@@ -11,7 +11,8 @@ command map: `docs/DESIGN.md`. All UI text is Portuguese (pt-BR).
 - `Resources/Guide/` the guide that opens from Help, read only.
 - `Sources/LumeKit/` rules and data logic with no SwiftUI. Tests in `Tests/LumeKitTests/`.
 - `Package.swift` a Swift package. There is no Xcode project.
-- `build.sh` builds, signs, and installs `~/Applications/Lume.app`.
+- `build.sh` builds, signs, and installs `~/Applications/Lume.app`. `tools/release.sh` makes the universal, notarized DMG (`docs/RELEASING.md`).
+- Minimum macOS 14. APIs from 15 or 26 go behind `if #available` with a fallback: `ToolbarSpacer`, `searchFocused`, `onScrollGeometryChange`.
 - `Icon/AppIcon.icon` the app icon, an Icon Composer file (JSON plus SVG layers). `build.sh` compiles it with `tools/make_icon.sh`; `tools/icon_review.sh` renders every look into one PNG.
 - `docs/` the brief, the screen index, and the user stories, when they exist.
 
