@@ -3,6 +3,7 @@
 | Ação | Atalho |
 | --- | --- |
 | Abrir arquivo ou pasta | ⌘O |
+| Fechar a janela | ⌘W |
 | Salvar / Salvar como | ⌘S / ⇧⌘S |
 | Imprimir ou salvar em PDF | ⌘P |
 | Buscar no documento | ⌘F |

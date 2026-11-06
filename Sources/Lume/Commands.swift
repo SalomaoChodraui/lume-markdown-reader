@@ -3,7 +3,7 @@ import SwiftUI
 
 /// The menu bar. Every toolbar button and context menu item lives here too,
 /// with its shortcut. Command map:
-///   Arquivo     Abrir… ⌘O, Abrir Recente, Salvar ⌘S, Salvar Como… ⇧⌘S,
+///   Arquivo     Abrir… ⌘O, Abrir Recente, Fechar ⌘W, Salvar ⌘S, Salvar Como… ⇧⌘S,
 ///               Mostrar no Finder, Copiar Caminho ⌥⌘C, Imprimir… ⌘P
 ///   Editar      Buscar ▸ Buscar… ⌘F, Buscar Seguinte ⌘G, Buscar Anterior ⇧⌘G,
 ///               Buscar nos Arquivos ⌥⌘F
@@ -33,6 +33,11 @@ struct LumeCommands: Commands {
         }
 
         CommandGroup(replacing: .saveItem) {
+            // Replacing .saveItem also drops the system's Close item, so it comes back here.
+            // Closing the main window asks about unsaved changes (CloseGuard), then quits.
+            Button("Fechar") { NSApp.keyWindow?.performClose(nil) }
+                .keyboardShortcut("w")
+            Divider()
             Button("Salvar") { model.save() }
                 .keyboardShortcut("s")
                 .disabled(!model.canSave)
