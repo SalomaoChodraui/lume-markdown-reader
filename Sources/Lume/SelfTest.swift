@@ -102,6 +102,9 @@ enum SelfTest {
         model.checkForOutsideChanges()
         check("a change saved by another app reloads", file.content.contains("outro app"))
 
+        let closeItem = menuItem(key: "w", modifiers: .command)
+        check("Arquivo has Fechar on ⌘W", closeItem?.title == "Fechar", closeItem?.title ?? "nil")
+
         file.content += "\nrascunho"
         model.unsavedAnswer = .cancel
         let cancelled = await model.resolveUnsaved(action: "teste")
@@ -130,6 +133,20 @@ enum SelfTest {
 
         print(failures == 0 ? "SELFTEST PASS \(count) checks" : "SELFTEST FAIL \(failures) of \(count) checks")
         finish(code: failures == 0 ? 0 : 1)
+    }
+
+    private static func menuItem(key: String, modifiers: NSEvent.ModifierFlags) -> NSMenuItem? {
+        func search(_ menu: NSMenu) -> NSMenuItem? {
+            for item in menu.items {
+                if item.keyEquivalent == key,
+                   item.keyEquivalentModifierMask.intersection(.deviceIndependentFlagsMask) == modifiers {
+                    return item
+                }
+                if let submenu = item.submenu, let found = search(submenu) { return found }
+            }
+            return nil
+        }
+        return NSApp.mainMenu.flatMap(search)
     }
 
     private static func javaScript(_ script: String) async -> String? {
